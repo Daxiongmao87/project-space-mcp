@@ -1,0 +1,65 @@
+{
+    "version": "1.0",
+    "tools": [
+        {
+            "name": "list_todos",
+            "description": "List all TODO comments in the project source files",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "directory": {
+                        "type": "string",
+                        "description": "Directory to search (relative to project root)",
+                        "default": "src"
+                    }
+                }
+            },
+            "executor": {
+                "type": "bash",
+                "code": "grep -rn 'TODO' \"${PROJECT_ROOT}/${directory:-src}\" 2>/dev/null || echo 'No TODOs found'"
+            }
+        },
+        {
+            "name": "count_lines",
+            "description": "Count lines of code in the project",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "extension": {
+                        "type": "string",
+                        "description": "File extension to count (e.g., 'ts', 'js', 'py')",
+                        "default": "ts"
+                    }
+                }
+            },
+            "executor": {
+                "type": "bash",
+                "code": "find \"$PROJECT_ROOT\" -name \"*.${extension:-ts}\" -not -path '*/node_modules/*' -not -path '*/dist/*' | xargs wc -l 2>/dev/null | tail -1 || echo '0 total'"
+            }
+        },
+        {
+            "name": "git_status",
+            "description": "Show git status of the project",
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            },
+            "executor": {
+                "type": "bash",
+                "code": "cd \"$PROJECT_ROOT\" && git status --short 2>/dev/null || echo 'Not a git repository'"
+            }
+        },
+        {
+            "name": "python_info",
+            "description": "Display Python version and environment info",
+            "parameters": {
+                "type": "object",
+                "properties": {}
+            },
+            "executor": {
+                "type": "python",
+                "code": "import sys\nimport os\nprint(f'Python {sys.version}')\nprint(f'Project: {os.environ.get(\"PROJECT_ROOT\", \"unknown\")}')"
+            }
+        }
+    ]
+}

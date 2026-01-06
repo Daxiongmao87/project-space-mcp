@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "projectTools": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "/home/patrick/projects/project-mcp/dist/index.js"
+            ],
+            "env": {
+                "PROJECT_ROOT": "${workspaceFolder}"
+            }
+        }
+    }
+}
