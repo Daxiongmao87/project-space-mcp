@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { registry } from './registry.js';
 import { executeCommand } from './executor.js';
 import { ToolsWatcher } from './watcher.js';
+import { builtinTools, getBuiltinTool } from './builtin-tools.js';
 import type { ToolDefinition, ToolsConfig } from './types.js';
 
 let currentProjectRoot: string | null = null;
@@ -103,11 +104,18 @@ export function createServer(): Server {
             });
         }
 
-        const tools = registry.getTools();
-        console.error(`[server] Returning ${tools.length} tools`);
+        const registryTools = registry.getTools();
 
-        return {
-            tools: tools.map((tool) => ({
+        // Combine built-in tools with registry tools
+        const allTools = [
+            // Built-in tools first
+            ...builtinTools.map((tool) => ({
+                name: tool.name,
+                description: tool.description,
+                inputSchema: tool.inputSchema,
+            })),
+            // Then user-defined tools from registry
+            ...registryTools.map((tool) => ({
                 name: tool.name,
                 description: tool.description,
                 inputSchema: tool.parameters ?? {
@@ -115,7 +123,11 @@ export function createServer(): Server {
                     properties: {},
                 },
             })),
-        };
+        ];
+
+        console.error(`[server] Returning ${allTools.length} tools (${builtinTools.length} built-in, ${registryTools.length} user-defined)`);
+
+        return { tools: allTools };
     });
 
     // Handle tools/call request
@@ -132,6 +144,13 @@ export function createServer(): Server {
                 ],
                 isError: true,
             };
+        }
+
+        // Check for built-in tools first
+        const builtinTool = getBuiltinTool(name);
+        if (builtinTool) {
+            console.error(`[server] Executing built-in tool: ${name}`);
+            return builtinTool.execute((args ?? {}) as Record<string, unknown>, currentMcpDir);
         }
 
         const tool = registry.getTool(name);
