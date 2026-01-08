@@ -122,7 +122,7 @@ Each tool in the `tools` array has the following structure:
 | `type` | `"bash"` or `"python"` | Yes | Executor type |
 | `code` | string | One of code/file | Inline code to execute |
 | `file` | string | One of code/file | Script file path (relative to `.mcp/`) |
-| `timeout` | number | No | Timeout in milliseconds (default: 30000) |
+| `timeout` | number | No | Timeout in milliseconds (-1 for infinite, default: -1) |
 
 ## Environment Variables
 

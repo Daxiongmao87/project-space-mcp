@@ -91,9 +91,9 @@ export const TOOLS_SCHEMA = {
                         },
                         "timeout": {
                             "type": "integer",
-                            "description": "Execution timeout in milliseconds",
-                            "default": 30000,
-                            "minimum": 1000,
+                            "description": "Execution timeout in milliseconds (-1 for infinite)",
+                            "default": -1,
+                            "minimum": -1,
                             "maximum": 300000
                         }
                     },

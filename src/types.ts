@@ -12,7 +12,7 @@ export interface ToolExecutor {
     code?: string;
     /** Path to script file relative to .mcp/ directory (mutually exclusive with code) */
     file?: string;
-    /** Execution timeout in milliseconds (default: 30000) */
+    /** Execution timeout in milliseconds (-1 for infinite, default: -1) */
     timeout?: number;
 }
 

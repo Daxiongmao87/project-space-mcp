@@ -8,8 +8,8 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ToolExecutor, ExecutionResult } from './types.js';
 
-/** Default execution timeout in milliseconds */
-const DEFAULT_TIMEOUT = 30000;
+/** Default execution timeout in milliseconds (-1 for infinite) */
+const DEFAULT_TIMEOUT = -1;
 
 /**
  * Execute a tool with the given parameters
@@ -105,15 +105,20 @@ function executeBash(
         let stderr = '';
         let killed = false;
 
-        const timer = setTimeout(() => {
-            killed = true;
-            proc.kill('SIGTERM');
-            setTimeout(() => {
-                if (!proc.killed) {
-                    proc.kill('SIGKILL');
-                }
-            }, 1000);
-        }, timeout);
+        let timer: NodeJS.Timeout | null = null;
+
+        // Only set timeout if it's a positive number
+        if (timeout > 0) {
+            timer = setTimeout(() => {
+                killed = true;
+                proc.kill('SIGTERM');
+                setTimeout(() => {
+                    if (!proc.killed) {
+                        proc.kill('SIGKILL');
+                    }
+                }, 1000);
+            }, timeout);
+        }
 
         proc.stdout.on('data', (data: Buffer) => {
             stdout += data.toString();
@@ -124,7 +129,7 @@ function executeBash(
         });
 
         proc.on('error', (err) => {
-            clearTimeout(timer);
+            if (timer) clearTimeout(timer);
             resolve({
                 success: false,
                 stdout,
@@ -135,7 +140,7 @@ function executeBash(
         });
 
         proc.on('close', (exitCode) => {
-            clearTimeout(timer);
+            if (timer) clearTimeout(timer);
             if (killed) {
                 resolve({
                     success: false,
@@ -176,15 +181,20 @@ function executePython(
         let stderr = '';
         let killed = false;
 
-        const timer = setTimeout(() => {
-            killed = true;
-            proc.kill('SIGTERM');
-            setTimeout(() => {
-                if (!proc.killed) {
-                    proc.kill('SIGKILL');
-                }
-            }, 1000);
-        }, timeout);
+        let timer: NodeJS.Timeout | null = null;
+
+        // Only set timeout if it's a positive number
+        if (timeout > 0) {
+            timer = setTimeout(() => {
+                killed = true;
+                proc.kill('SIGTERM');
+                setTimeout(() => {
+                    if (!proc.killed) {
+                        proc.kill('SIGKILL');
+                    }
+                }, 1000);
+            }, timeout);
+        }
 
         proc.stdout.on('data', (data: Buffer) => {
             stdout += data.toString();
@@ -195,7 +205,7 @@ function executePython(
         });
 
         proc.on('error', (err) => {
-            clearTimeout(timer);
+            if (timer) clearTimeout(timer);
             resolve({
                 success: false,
                 stdout,
@@ -206,7 +216,7 @@ function executePython(
         });
 
         proc.on('close', (exitCode) => {
-            clearTimeout(timer);
+            if (timer) clearTimeout(timer);
             if (killed) {
                 resolve({
                     success: false,
