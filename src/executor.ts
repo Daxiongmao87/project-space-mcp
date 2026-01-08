@@ -147,7 +147,7 @@ function executeBash(
                     stdout,
                     stderr,
                     exitCode: exitCode ?? 1,
-                    error: `Execution timed out after ${timeout}ms`,
+                    error: `Execution timed out after ${timeout > 0 ? timeout : 'infinite'}ms`,
                 });
             } else {
                 resolve({
@@ -223,7 +223,7 @@ function executePython(
                     stdout,
                     stderr,
                     exitCode: exitCode ?? 1,
-                    error: `Execution timed out after ${timeout}ms`,
+                    error: `Execution timed out after ${timeout > 0 ? timeout : 'infinite'}ms`,
                 });
             } else {
                 resolve({
